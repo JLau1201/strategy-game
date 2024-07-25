@@ -15,16 +15,8 @@ public class Cursor : MonoBehaviour
 
     private Vector3 cursorToMapPos;
 
-    private void Start() {
-        GameInputManager.instance.OnSelectInput += GameInputManager_OnSelectInput;
-    }
-
     private void Awake() {
         instance = this;
-    }
-
-    private void GameInputManager_OnSelectInput(object sender, System.EventArgs e) {
-        
     }
 
     private void Update() {
@@ -70,8 +62,16 @@ public class Cursor : MonoBehaviour
             return hit.transform.gameObject;
         }
 
-        Debug.DrawRay(positionOffset, Vector3.down * maxDist, Color.red, 5);
-        
         return null;
+    }
+
+    // Get the manhattan distance from target to the cursor
+    public int GetDistanceToCursor(Vector2 targetPos) {
+        Vector2 cursorPos = new Vector2(transform.position.x, transform.position.z);
+        
+        Vector3Int targetGridPos = grid.WorldToCell(new Vector3(targetPos.x, 0f, targetPos.y));
+        targetPos = new Vector2(grid.CellToWorld(targetGridPos).x, grid.CellToWorld(targetGridPos).z);
+
+        return (int) (Mathf.Abs(cursorPos.x - targetPos.x) + Mathf.Abs(cursorPos.y - targetPos.y));
     }
 }

@@ -63,7 +63,7 @@ public class MapManager : MonoBehaviour
     }
 
     // Return the position of the tile gameobject within the grid array
-    public Vector2 GetTilePosition(GameObject tile) {
+    public Vector2 GetTileToGridPosition(GameObject tile) {
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < columns; j++) {
                 if (gridArray[i, j] == tile) {
