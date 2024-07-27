@@ -76,8 +76,8 @@ public class MapManager : MonoBehaviour
     }
 
     // Return whether the position is valid (not out of bounds)
-    public bool IsValidTilePosition(Vector2 tilePosition) {
-        if(tilePosition.x < rows && tilePosition.x > -1 && tilePosition.y < columns && tilePosition.y > -1) {
+    public bool IsValidGridPosition(Vector2 gridPosition) {
+        if(gridPosition.x < rows && gridPosition.x > -1 && gridPosition.y < columns && gridPosition.y > -1) {
             return true;
         }
         return false;

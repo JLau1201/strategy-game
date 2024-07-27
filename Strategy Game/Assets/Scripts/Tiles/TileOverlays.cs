@@ -12,6 +12,10 @@ public class TileOverlays : MonoBehaviour
     [Header("Scriptable Objects")]
     [SerializeField] private CursorMoveSpritesSO cursorMoveSpritesSO;
 
+    private const string PATH_ARROW = "PathArrow";
+    private const string PATH_LINE = "PathLine";
+    private const string PATH_CORNER = "PathCorner";
+
     public void ShowTile() {
         availableTile.gameObject.SetActive(true);
     }
@@ -34,7 +38,7 @@ public class TileOverlays : MonoBehaviour
                 break;
         }
         // Rotate image
-        moveDirectionImage.rectTransform.rotation = Quaternion.Euler(new Vector3(90, 0, spriteAngle));
+        moveDirectionImage.rectTransform.rotation = Quaternion.Euler(new Vector3(90, spriteAngle, 0));
 
         ShowCursorMoveSprite();
     }
@@ -45,9 +49,5 @@ public class TileOverlays : MonoBehaviour
 
     public void HideCursorMoveSprite() {
         moveDirectionImage.gameObject.SetActive(false);
-    }
-
-    public float GetCursorMoveAngle() {
-        return moveDirectionImage.rectTransform.rotation.eulerAngles.y;
     }
 }
