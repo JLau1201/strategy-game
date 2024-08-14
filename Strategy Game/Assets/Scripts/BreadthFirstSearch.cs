@@ -4,20 +4,22 @@ using UnityEngine;
 
 public static class BreadthFirstSearch 
 {
-    private static Vector2[] dirOffsets = {
+    public static Vector2[] dirOffsets = {
         new Vector2(1, 0),
         new Vector2(-1, 0),
         new Vector2(0, 1),
         new Vector2(0, -1),
     };
 
-    public static List<GameObject> BFS(GameObject[,] gridArray, GameObject startTile, GameObject goalTile) {
+    public static List<GameObject> BFS(MapManager.Tile[,] gridArray, GameObject startTile, GameObject goalTile) {
         // Get the start and goal positions with respect to the grid
-        Vector2 startPos = MapManager.instance.GetTileToGridPosition(startTile);
-        Vector2 goalPos = MapManager.instance.GetTileToGridPosition(goalTile);
+        Vector2 startPos = MapManager.Instance.GetTileToGridPosition(startTile);
+        Vector2 goalPos = MapManager.Instance.GetTileToGridPosition(goalTile);
 
         Queue<Vector2> queue = new Queue<Vector2>();
         HashSet<Vector2> visited = new HashSet<Vector2>();
+        
+        // For path construction
         Dictionary<Vector2, Vector2> cameFrom = new Dictionary<Vector2, Vector2>();
 
         queue.Enqueue(startPos);
@@ -33,7 +35,7 @@ public static class BreadthFirstSearch
             }
 
             // Iterate through all neighbors
-            foreach(Vector2 neighbor in GetNeighbors(current)) {
+            foreach(Vector2 neighbor in GetValidNeighbors(current, true)) {
                 if (!visited.Contains(neighbor)) {
                     queue.Enqueue(neighbor);
                     visited.Add(neighbor);
@@ -48,13 +50,13 @@ public static class BreadthFirstSearch
     }
     
 
-    private static List<Vector2> GetNeighbors(Vector2 gridPos) {
+    public static List<Vector2> GetValidNeighbors(Vector2 gridPos, bool isTileType) {
         List<Vector2> neighbors = new List<Vector2>();
 
         // Get all possible neighbors
         foreach (Vector2 dir in dirOffsets) {
             Vector2 neighbor = gridPos + dir;
-            if (MapManager.instance.IsValidGridPosition(neighbor)) {
+            if (MapManager.Instance.IsValidGridPosition(neighbor, isTileType)) {
                 neighbors.Add(neighbor);
             }
         }
@@ -63,16 +65,16 @@ public static class BreadthFirstSearch
     }
 
     // Helper method to reconstruct the path from the cameFrom dictionary
-    private static List<GameObject> ReconstructPath(GameObject[,] gridArray, Dictionary<Vector2, Vector2> cameFrom, Vector2 startPos, Vector2 goalPos) {
+    private static List<GameObject> ReconstructPath(MapManager.Tile[,] gridArray, Dictionary<Vector2, Vector2> cameFrom, Vector2 startPos, Vector2 goalPos) {
         List<GameObject> path = new List<GameObject>();
         Vector2 current = goalPos;
 
         while (!current.Equals(startPos)) {
-            path.Add(gridArray[(int)current.x, (int)current.y]);
+            path.Add(gridArray[(int)current.x, (int)current.y].tileGameObject);
             current = cameFrom[current];
         }
 
-        path.Add(gridArray[(int)startPos.x, (int)startPos.y]);
+        path.Add(gridArray[(int)startPos.x, (int)startPos.y].tileGameObject);
         path.Reverse();
 
         return path;

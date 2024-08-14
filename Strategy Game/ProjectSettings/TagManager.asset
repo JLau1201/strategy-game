@@ -11,10 +11,10 @@ TagManager:
   - Grid
   - Water
   - UI
-  - Unit
   - Tile
-  - 
-  - 
+  - AllyUnit
+  - EnemyUnit
+  - Obstacle
   - 
   - 
   - 

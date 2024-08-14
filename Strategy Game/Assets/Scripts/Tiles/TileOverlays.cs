@@ -6,8 +6,10 @@ using UnityEngine.UI;
 public class TileOverlays : MonoBehaviour
 {
     [Header("Images")]
-    [SerializeField] private Image availableTile;
+    [SerializeField] private Image moveTileImage;
     [SerializeField] private Image moveDirectionImage;
+    [SerializeField] private Image attackTileImage;
+    [SerializeField] private Image abilityTileImage;
 
     [Header("Scriptable Objects")]
     [SerializeField] private CursorMoveSpritesSO cursorMoveSpritesSO;
@@ -16,12 +18,12 @@ public class TileOverlays : MonoBehaviour
     private const string PATH_LINE = "PathLine";
     private const string PATH_CORNER = "PathCorner";
 
-    public void ShowTile() {
-        availableTile.gameObject.SetActive(true);
+    public void ShowMoveTile() {
+        moveTileImage.gameObject.SetActive(true);
     }
 
-    public void HideTile() {
-        availableTile.gameObject.SetActive(false);
+    public void HideMoveTile() {
+        moveTileImage.gameObject.SetActive(false);
     }
 
     public void SetCursorMoveSprite(UnitMovementManager.SpriteType directionType, float spriteAngle) {
@@ -49,5 +51,21 @@ public class TileOverlays : MonoBehaviour
 
     public void HideCursorMoveSprite() {
         moveDirectionImage.gameObject.SetActive(false);
+    }
+
+    public void ShowAttackTile() {
+        attackTileImage.gameObject.SetActive(true);
+    }
+
+    public void HideAttackTile() {
+        attackTileImage.gameObject.SetActive(false);
+    }
+    
+    public void ShowAbilityTile() {
+        abilityTileImage.gameObject.SetActive(true);
+    }
+
+    public void HideAbilityTile() {
+        abilityTileImage.gameObject.SetActive(false);
     }
 }

@@ -1,34 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-public class UnitMovementManager : MonoBehaviour {
-    public static UnitMovementManager instance { get; private set; }
+using UnityEngine.UI;
 
-    private GameObject[,] gridArray; // Game board
+public class UnitMovementManager : MonoBehaviour {
+
+    [SerializeField] private LayerMask enemyLayer;
+
     private HashSet<GameObject> inMoveRangeSet = new HashSet<GameObject>(); // Hashset of tiles in selected units movement range
+    private HashSet<GameObject> inAttackRangeSet = new HashSet<GameObject>();
 
     // Variables for direction arrow
     private List<GameObject> tilesHoveredList = new List<GameObject>(); // List of tiles hovered by cursor for unit movement
-    private bool isAlliedUnitSelected = false;
-    private Vector2 unitTilePos; // Position of unit in game
     private Vector2 unitGridPos; // Position of unit in grid array
+
     private int unitMoveRange;
+    private int unitAttackRange;
     private GameObject lastTileHovered = null;
     private GameObject selectedUnit;
+    private Unit unit;
+
+    private bool isAlliedUnitSelected = false;
 
     // Variables for BFS
     private GameObject startTile;
 
     [SerializeField] private float moveSpeed = 1;
     private bool isUnitMoving = false;
-
-    // Directions player can move in
-    private Vector2[] dirOffset = {
-        new Vector2(1, 0),
-        new Vector2(0, 1),
-        new Vector2(-1, 0),
-        new Vector2(0, -1)};
-
+    
     public enum SpriteType {
         Arrow,
         Line,
@@ -36,49 +36,63 @@ public class UnitMovementManager : MonoBehaviour {
     }
 
     private void Start() {
-        Player.instance.OnUnitSelected += Player_OnUnitSelected;
-        Player.instance.OnUnitUnselected += Player_OnUnitUnselected;
+        Player.Instance.OnUnitMoveStart += Player_OnUnitMoveStart;
+        Player.Instance.OnUnitMoveComplete += Player_OnUnitMoveComplete;
+        Player.Instance.OnUnitMoveCancelled += Player_OnUnitMoveCancelled;
     }
 
-    private void Player_OnUnitUnselected(object sender, System.EventArgs e) {
-        // Check if tile selected when unit is unseleceted is in move the move range
-        // Move unit following tilesHoveredList
-        // Clear path/moverange when done moving
-        // Moverange clears while moving over it
+    private void Player_OnUnitMoveStart(object sender, Player.OnUnitSelectedEventArgs e) {
+        startTile = e.selectedTile;
+        selectedUnit = e.selectedUnit;
+        
+        unit = selectedUnit.GetComponent<Unit>();
+        unitMoveRange = unit.MoveRange;
+        unitAttackRange = unit.AttackRange;
+
+        unitGridPos = MapManager.Instance.GetTileToGridPosition(startTile);
+
+        ShowMoveRange(unitGridPos, unitMoveRange + unitAttackRange);
+
+        isAlliedUnitSelected = true;
+
+        ComputeShortestPath();
+    }
+
+    private void Player_OnUnitMoveComplete(object sender, System.EventArgs e) {
         isAlliedUnitSelected = false;
         lastTileHovered = null;
-        GameObject targetTile = Cursor.instance.GetTileOnCursor();
+        // Check if tile selected when unit is unseleceted is in move the move range
+        GameObject targetTile = MapManager.Instance.GetTile(CursorInput.Instance.GetCursorPosition());
+
         if (targetTile == tilesHoveredList[tilesHoveredList.Count - 1]) {
-            // Move unit
+            // Move unit following tilesHoveredList
             tilesHoveredList.RemoveAt(0);
-            Player.instance.SetCanSelect(false);
+
+            // Unit is moving disable cursor/select
+            Player.Instance.SetCanSelect(false);
+            CursorInput.Instance.SetCanMoveCursor(false);
             isUnitMoving = true;
         } else {
+            // Clear path/moverange
             ClearMoveRange();
             ClearPath(0);
+
+            // Tile not in move range
+            Player.Instance.SetTurnAction(Player.TurnAction.Nothing);
         }
     }
 
-    private void Player_OnUnitSelected(object sender, Player.OnUnitSelectedEventArgs e) {
-        startTile = e.selectedTile;
-        unitTilePos = new Vector2(startTile.transform.position.x, startTile.transform.position.y);
-        unitGridPos = MapManager.instance.GetTileToGridPosition(startTile);
-        selectedUnit = e.selectedUnit;
-        unitMoveRange = selectedUnit.GetComponent<Unit>().GetUnitSO().range;
-
-        ShowMoveRange(unitGridPos, unitMoveRange);
-
-        isAlliedUnitSelected = true;
-    }
-
-    private void Awake() {
-        instance = this;
+    private void Player_OnUnitMoveCancelled(object sender, System.EventArgs e) {
+        isAlliedUnitSelected = false;
+        lastTileHovered = null;
+        ClearMoveRange();
+        ClearPath(0);
     }
 
     private void Update() {
         // While isAlliedUnitSelected display direction arrow
         if (isAlliedUnitSelected) {
-            GameObject tile = Cursor.instance.GetTileOnCursor();
+            GameObject tile = MapManager.Instance.GetTile(CursorInput.Instance.GetCursorPosition());
             if(tile != lastTileHovered) {
                 ShowMovePath(tile);
             }
@@ -89,13 +103,15 @@ public class UnitMovementManager : MonoBehaviour {
         }
     }
 
+    // Unit is moving
     private void HandleMovement() {
         // If movement is done reset everything
         if(tilesHoveredList.Count <= 0) {
-            Player.instance.SetCanSelect(true);
             isUnitMoving = false;
             ClearMoveRange();
             tilesHoveredList.Clear();
+
+            Player.Instance.SetTurnAction(Player.TurnAction.UnitMenu);
             return;
         }
 
@@ -110,25 +126,72 @@ public class UnitMovementManager : MonoBehaviour {
         }
     }
 
+    class QNode {
+        public Vector2 pos { get; set; }
+        public int range { get; set; }
+    }
+
     // Display the units movement range
     private void ShowMoveRange(Vector2 unitGridPos, int range) {
-        // Check if the unit can move on that tile
-        if (!MapManager.instance.IsValidGridPosition(unitGridPos)) {
-            return;
-        }
+        // BFS over range
+        Queue<QNode> queue = new Queue<QNode>();
+        HashSet<QNode> visited = new HashSet<QNode>();
 
-        gridArray = MapManager.instance.GetGridArray();
+        QNode qnode = new QNode();
+        qnode.pos = unitGridPos;
+        qnode.range = 0;
 
-        int x = (int)unitGridPos.x;
-        int y = (int)unitGridPos.y;
+        queue.Enqueue(qnode);
+        visited.Add(qnode);
 
-        inMoveRangeSet.Add(gridArray[x, y]);
+        while (queue.Count > 0) {
+            QNode current = queue.Dequeue();
 
-        gridArray[x, y].GetComponent<TileOverlays>().ShowTile();
-        range--;
-        if (range > -1) {
-            foreach (Vector2 dir in dirOffset) {
-                ShowMoveRange(unitGridPos + dir, range);
+            if (current.range > range) {
+                continue;
+            }
+
+            GameObject tile = MapManager.Instance.gridArray[(int)current.pos.x, (int)current.pos.y].tileGameObject;
+            TileOverlays tileOverlays = tile.GetComponent<TileOverlays>();
+
+            GameObject unit = MapManager.Instance.GetUnit(tile.transform.position);
+            if (current.range > unitMoveRange) {
+                tileOverlays.ShowAttackTile();
+                inAttackRangeSet.Add(tile);
+            } else if (unit != null) {
+                if (1 << unit.layer == enemyLayer) {
+                    tileOverlays.ShowAttackTile();
+                    inAttackRangeSet.Add(tile);
+                } else {
+                    tileOverlays.ShowMoveTile();
+                    inMoveRangeSet.Add(tile);
+                }
+            } else if (MapManager.Instance.gridArray[(int)current.pos.x, (int)current.pos.y].tileType != MapManager.TileType.Land) {
+                tileOverlays.ShowAttackTile();
+                inAttackRangeSet.Add(tile);
+                // UH OH if range > 100
+                current.range += 100;
+            } else {
+                tileOverlays.ShowMoveTile();
+                inMoveRangeSet.Add(tile);
+            }
+
+            foreach(Vector2 neighbor in BreadthFirstSearch.GetValidNeighbors(current.pos, false)){
+                QNode nextNode = new QNode();
+                nextNode.pos = neighbor;
+                nextNode.range = current.range + 1;
+                bool found = false;
+                foreach (QNode visitedNode in visited) {
+                    if(nextNode.pos == visitedNode.pos) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found && nextNode.range < range + 1) {
+                    queue.Enqueue(nextNode);
+                    visited.Add(nextNode);
+                }
             }
         }
     }
@@ -136,9 +199,14 @@ public class UnitMovementManager : MonoBehaviour {
     // Clear all the tiles in the units movement range list
     public void ClearMoveRange() {
         foreach (GameObject tile in inMoveRangeSet) {
-            tile.GetComponent<TileOverlays>().HideTile();
+            tile.GetComponent<TileOverlays>().HideMoveTile();
         }
+        foreach (GameObject tile in inAttackRangeSet) {
+            tile.GetComponent<TileOverlays>().HideAttackTile();
+        }
+
         inMoveRangeSet.Clear();
+        inAttackRangeSet.Clear();
     }
 
     // Show the move path from unit to cursor
@@ -285,9 +353,9 @@ public class UnitMovementManager : MonoBehaviour {
         // Clear the path
         ClearPath(0);
 
-        GameObject goalTile = Cursor.instance.GetTileOnCursor();
+        GameObject goalTile = MapManager.Instance.GetTile(CursorInput.Instance.GetCursorPosition());
 
-        tilesHoveredList = BreadthFirstSearch.BFS(gridArray, startTile, goalTile);
+        tilesHoveredList = BreadthFirstSearch.BFS(MapManager.Instance.gridArray, startTile, goalTile);
         // Draw new path
         for (int i = 0; i < tilesHoveredList.Count; i++) {
             if (i == 0) continue;
@@ -307,8 +375,9 @@ public class UnitMovementManager : MonoBehaviour {
 
             tileToRemoveOverlay.HideCursorMoveSprite();
         }
-
-        tilesHoveredList.RemoveRange(startInd + 1, tilesHoveredList.Count - (startInd + 1));
+        if (tilesHoveredList.Count > 0) { 
+            tilesHoveredList.RemoveRange(startInd + 1, tilesHoveredList.Count - (startInd + 1));
+        }
         if (tilesHoveredList.Count > 1) {
             ComputeArrowAngle(tilesHoveredList.Count-1);
         }
