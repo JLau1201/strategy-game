@@ -4,8 +4,8 @@ using UnityEngine;
 
 public abstract class AbilitySO : ScriptableObject
 {
-    string abilityName;
-    float abilityModifier;
+    public string abilityName;
+    public float abilityModifier;
 
-    public abstract void Activate();
+    public abstract void Activate(GameObject target, float abilityDamage);
 }

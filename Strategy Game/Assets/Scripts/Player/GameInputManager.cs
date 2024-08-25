@@ -12,6 +12,9 @@ public class GameInputManager : MonoBehaviour
     public event EventHandler OnCancelInput;
     public event EventHandler OnToggleCursorInput;
 
+    public event EventHandler OnMoveCameraStart;
+    public event EventHandler OnMoveCameraCancel;
+
     private PlayerInputActions inputActions;
 
     private void Awake() {
@@ -22,6 +25,17 @@ public class GameInputManager : MonoBehaviour
         inputActions.Player.Select.performed += Select_performed;
         inputActions.Player.Cancel.performed += Cancel_performed;
         inputActions.Player.ToggleCursor.performed += ToggleCursor_performed;
+
+        inputActions.Player.MoveCamera.started += MoveCamera_started;
+        inputActions.Player.MoveCamera.canceled += MoveCamera_canceled;
+    }
+
+    private void MoveCamera_started(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        OnMoveCameraStart?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void MoveCamera_canceled(UnityEngine.InputSystem.InputAction.CallbackContext obj) {
+        OnMoveCameraCancel?.Invoke(this, EventArgs.Empty);
     }
 
     private void ToggleCursor_performed(UnityEngine.InputSystem.InputAction.CallbackContext obj) {

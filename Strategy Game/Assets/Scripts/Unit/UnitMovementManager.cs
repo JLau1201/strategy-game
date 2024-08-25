@@ -127,8 +127,8 @@ public class UnitMovementManager : MonoBehaviour {
     }
 
     class QNode {
-        public Vector2 pos { get; set; }
-        public int range { get; set; }
+        public Vector2 Pos { get; set; }
+        public int Range { get; set; }
     }
 
     // Display the units movement range
@@ -138,8 +138,8 @@ public class UnitMovementManager : MonoBehaviour {
         HashSet<QNode> visited = new HashSet<QNode>();
 
         QNode qnode = new QNode();
-        qnode.pos = unitGridPos;
-        qnode.range = 0;
+        qnode.Pos = unitGridPos;
+        qnode.Range = 0;
 
         queue.Enqueue(qnode);
         visited.Add(qnode);
@@ -147,15 +147,15 @@ public class UnitMovementManager : MonoBehaviour {
         while (queue.Count > 0) {
             QNode current = queue.Dequeue();
 
-            if (current.range > range) {
+            if (current.Range > range) {
                 continue;
             }
 
-            GameObject tile = MapManager.Instance.gridArray[(int)current.pos.x, (int)current.pos.y].tileGameObject;
+            GameObject tile = MapManager.Instance.gridArray[(int)current.Pos.x, (int)current.Pos.y].tileGameObject;
             TileOverlays tileOverlays = tile.GetComponent<TileOverlays>();
 
             GameObject unit = MapManager.Instance.GetUnit(tile.transform.position);
-            if (current.range > unitMoveRange) {
+            if (current.Range > unitMoveRange) {
                 tileOverlays.ShowAttackTile();
                 inAttackRangeSet.Add(tile);
             } else if (unit != null) {
@@ -166,29 +166,31 @@ public class UnitMovementManager : MonoBehaviour {
                     tileOverlays.ShowMoveTile();
                     inMoveRangeSet.Add(tile);
                 }
-            } else if (MapManager.Instance.gridArray[(int)current.pos.x, (int)current.pos.y].tileType != MapManager.TileType.Land) {
+            } else if (MapManager.Instance.gridArray[(int)current.Pos.x, (int)current.Pos.y].tileType != MapManager.TileType.Land) {
                 tileOverlays.ShowAttackTile();
                 inAttackRangeSet.Add(tile);
                 // UH OH if range > 100
-                current.range += 100;
+                current.Range += 100;
             } else {
                 tileOverlays.ShowMoveTile();
                 inMoveRangeSet.Add(tile);
             }
 
-            foreach(Vector2 neighbor in BreadthFirstSearch.GetValidNeighbors(current.pos, false)){
-                QNode nextNode = new QNode();
-                nextNode.pos = neighbor;
-                nextNode.range = current.range + 1;
+            foreach(Vector2 neighbor in BreadthFirstSearch.GetValidNeighbors(current.Pos, false)){
+                QNode nextNode = new() {
+                    Pos = neighbor,
+                    Range = current.Range + 1
+                };
+
                 bool found = false;
                 foreach (QNode visitedNode in visited) {
-                    if(nextNode.pos == visitedNode.pos) {
+                    if(nextNode.Pos == visitedNode.Pos) {
                         found = true;
                         break;
                     }
                 }
 
-                if (!found && nextNode.range < range + 1) {
+                if (!found && nextNode.Range < range + 1) {
                     queue.Enqueue(nextNode);
                     visited.Add(nextNode);
                 }

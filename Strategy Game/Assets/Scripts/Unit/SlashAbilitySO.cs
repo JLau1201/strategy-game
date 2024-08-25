@@ -2,12 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-
-public class SlashAbilitySO : AbilitySO {
-
-
-
-    public override void Activate() {
-        
+[CreateAssetMenu(fileName="NewBasicDamangeAbilitySO", menuName="Ability/BasicDamage")]
+public class BasicDamageAbilitySO : AbilitySO {
+    public override void Activate(GameObject target, float abilityDamage) {
+        target.GetComponent<Unit>().ModifyHealth(-abilityDamage);
     }
 }

@@ -1,7 +1,4 @@
-using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using Unity.VisualScripting.Dependencies.NCalc;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -171,5 +168,24 @@ public class CursorInput : MonoBehaviour
                 Destroy(abilityTile.gameObject);
             }
         }
+    }
+
+
+    // While Ability cursor is active
+    // Get all targets based off layermask 
+    public List<GameObject> GetAbilityTargets(LayerMask targetMask) {
+        List<GameObject> abilityTargets = new List<GameObject>();
+
+        foreach (Transform abilityTile in abilityCursor) {
+            Vector3 rayOrigin = new Vector3(abilityTile.position.x, -5f, abilityTile.position.z);
+            float maxRayDist = 20f;
+
+            RaycastHit hit;
+            if(Physics.Raycast(rayOrigin, Vector3.up, out hit, maxRayDist, targetMask)) {
+                abilityTargets.Add(hit.transform.gameObject);
+            }
+        }
+
+        return abilityTargets;
     }
 }

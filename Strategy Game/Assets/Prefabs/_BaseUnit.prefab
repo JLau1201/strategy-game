@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 6374572287816673876}
   - component: {fileID: 4537064610987582024}
   - component: {fileID: 5495441211296757628}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: AttackButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 7767952478695730210}
   - component: {fileID: 6417685526321876574}
   - component: {fileID: 6747751118187414350}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: HealthBarImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -206,8 +206,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2596612540822610743}
   - component: {fileID: 2228770186810850341}
-  m_Layer: 6
-  m_Name: Visual
+  m_Layer: 0
+  m_Name: Model
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -264,7 +264,7 @@ GameObject:
   - component: {fileID: 8207789022200629039}
   - component: {fileID: 7237207192171070401}
   - component: {fileID: 6038633710316969866}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -380,7 +380,7 @@ GameObject:
   - component: {fileID: 2547104921816071539}
   - component: {fileID: 2933497580479312836}
   - component: {fileID: 4273900402665785018}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EndMoveButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -500,7 +500,7 @@ GameObject:
   - component: {fileID: 111923401145082649}
   - component: {fileID: 1038145303462204307}
   - component: {fileID: 6518429002151295576}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -635,7 +635,7 @@ GameObject:
   - component: {fileID: 4691794041042777582}
   - component: {fileID: 2327971967824663628}
   - component: {fileID: 627788428166629250}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: AbilityButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -754,7 +754,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5687509167881487721}
   - component: {fileID: 7310500363274002610}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: ButtonHolder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -820,7 +820,7 @@ GameObject:
   - component: {fileID: 5127318807675360706}
   - component: {fileID: 8234234297135581408}
   - component: {fileID: 2229137628958371718}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -956,7 +956,7 @@ GameObject:
   - component: {fileID: 6984638954778173278}
   - component: {fileID: 2797144985679569648}
   - component: {fileID: 8912400930805012265}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Border
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1032,7 +1032,7 @@ GameObject:
   - component: {fileID: -4384707674150867341}
   - component: {fileID: 2594464665197099590}
   - component: {fileID: 8886278268971950114}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: _BaseUnit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1116,7 +1116,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7133821021968231610}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: ActionMenu
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1155,7 +1155,7 @@ GameObject:
   - component: {fileID: 3068843111473045810}
   - component: {fileID: 7451516369126485968}
   - component: {fileID: 8396795468602826670}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Character
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1237,7 +1237,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8982661045943379094}
   - component: {fileID: 7544537032546520453}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: HealtharUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1288,7 +1288,7 @@ GameObject:
   - component: {fileID: 6838075895732386875}
   - component: {fileID: 2341429112031603900}
   - component: {fileID: 5349741467255201565}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Text (TMP)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1424,7 +1424,7 @@ GameObject:
   - component: {fileID: 6726887854549922244}
   - component: {fileID: 5560640328679665077}
   - component: {fileID: 5970962113378688422}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1564,7 +1564,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: bab77949fce13524d804e9d06fac488d,
         type: 3}
       propertyPath: m_Layer
-      value: 6
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

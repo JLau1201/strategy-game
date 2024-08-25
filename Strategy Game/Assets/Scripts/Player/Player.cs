@@ -22,6 +22,14 @@ public class Player : MonoBehaviour
     public event EventHandler OnUnitAbilityComplete;
     public event EventHandler OnUnitAbilityCancelled;
 
+    // Unit Summon events
+    public event EventHandler<OnCardPlayedEventArgs> OnUnitSummonStart;
+    public event EventHandler OnUnitSummonComplete;
+    public event EventHandler OnUnitSummonCancelled;
+
+    // Unit display events
+    public event EventHandler OnUnitInfoDisplayStart;
+
     // Event args for unit action events
     private OnUnitSelectedEventArgs onUnitSelectedEventArgs;
 
@@ -29,11 +37,17 @@ public class Player : MonoBehaviour
         public GameObject selectedUnit;
         public GameObject selectedTile;
     }
+    
+    // Event args for card actions
+    public class OnCardPlayedEventArgs : EventArgs {
+        public CardSO cardSO;
+    }
 
     private GameObject selectedTile;
     private GameObject selectedUnit = null;
     private Vector3 selectedUnitPos;
     private bool canSelect = true;
+    private CardSO selectedCard;
 
     // Track what player is doing
     private TurnAction currTurnAction;
@@ -43,8 +57,8 @@ public class Player : MonoBehaviour
         UnitMenu,       // CursorInput canMoveCursor Disabled : Player canSelect Disabled
         UnitAttack,     // CursorInput canMoveCursor Enabled : CursorInput IsAttacking Enabled : Player canSelect Enabled - Disable during animation
         UnitAbility,    // CursorInput canMoveCursor Enabled : CursorInput IsAttacking Enabled : Player canSelect Enabled - Disable during animation
-        EnemyUnit,
-        Terrain,
+        UnitSummon,     // CursorInput canMoveCursor Enabled : Player canSelect Enabled
+        Cards,          // Disable Everything
     }
     
     private void Awake() {
@@ -58,12 +72,15 @@ public class Player : MonoBehaviour
 
     // Unit action rollbacks
     // On Cancel Input revert back to prior unit action 
+    // For TurnAction Nothing -> display unit information
     private void GameInputManager_OnCancelInput(object sender, EventArgs e) {
         if (!canSelect && currTurnAction != TurnAction.UnitMenu) return;
 
         switch (currTurnAction) {
             case TurnAction.Nothing:
-                // Nothing to cancel
+                // Check for unit -> display unit info
+                OnUnitInfoDisplayStart?.Invoke(this, EventArgs.Empty);
+
                 break;
             case TurnAction.UnitMove:
                 // Rollback to Nothing turn action
@@ -90,9 +107,8 @@ public class Player : MonoBehaviour
                 // Show ActionMenu
                 SetTurnAction(TurnAction.UnitMenu);
                 break;
-            case TurnAction.EnemyUnit:
-                break;
-            case TurnAction.Terrain:
+            case TurnAction.UnitSummon:
+                OnUnitSummonCancelled?.Invoke(this, EventArgs.Empty);
                 break;
         }
     }
@@ -124,9 +140,8 @@ public class Player : MonoBehaviour
                 OnUnitAbilityComplete?.Invoke(this, EventArgs.Empty);
 
                 break;
-            case TurnAction.EnemyUnit:
-                break;
-            case TurnAction.Terrain:
+            case TurnAction.UnitSummon:
+                OnUnitSummonComplete?.Invoke(this, EventArgs.Empty);
                 break;
         }
     }
@@ -186,6 +201,23 @@ public class Player : MonoBehaviour
                 // CursorInput isAttacking is set in UnitAttackManager
                 OnUnitAbilityStart?.Invoke(this, onUnitSelectedEventArgs);
                 break;
+            case TurnAction.UnitSummon:
+                canSelect = true;
+                CursorInput.Instance.SetCanMoveCursor(true);
+                OnUnitSummonStart?.Invoke(this, new OnCardPlayedEventArgs {
+                    cardSO = selectedCard
+                });
+                break;
+            case TurnAction.Cards:
+                canSelect = false;
+                CursorInput.Instance.SetCanMoveCursor(false);
+                // Maybe set isAttacking to false idk
+                break;
         }
+    }
+
+    // Set card when clicking on it in hand
+    public void SetSelectedCard(CardSO cardSO) {
+        selectedCard = cardSO;
     }
 }

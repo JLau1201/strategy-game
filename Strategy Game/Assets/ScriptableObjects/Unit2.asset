@@ -10,15 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1a1049bb60df3e648b9611c8175682b3, type: 3}
-  m_Name: NewUnitData
+  m_Name: Unit2
   m_EditorClassIdentifier: 
-  unitName: unit
-  health: 10
-  attack: 2
-  moveRange: 5
-  attackRange: 1
-  abilityRange: 1
+  cardName: 
+  splashArt: {fileID: 0}
+  cost: 0
+  unitPrefab: {fileID: 0}
+  cardPrefab: {fileID: 6093883281314309572, guid: 00d0638c9614a3741ab96a6bea938144,
+    type: 3}
+  health: 0
+  attack: 0
+  moveRange: 0
+  attackRange: 0
+  abilityRange: 0
   abilityRadius: 0
+  abilityMultiplier: 0
   cooldown: 0
   abilityType: 0
-  prefab: {fileID: 0}
+  abilitySO: {fileID: 0}

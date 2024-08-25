@@ -1,24 +1,38 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
-public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
+public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler {
 
-    private Vector3 originalPos;
-    private RectTransform rectTransform;
+    [SerializeField] private CardSO cardSO;
+    private RectTransform rectTransform; 
+    private Canvas canvas;
 
     private void Awake() {
         rectTransform = GetComponent<RectTransform>();
-        originalPos = rectTransform.anchoredPosition;
+        canvas = GetComponentInParent<Canvas>();
     }
 
 
-    public void OnPointerEnter(PointerEventData eventData) {
-        rectTransform.anchoredPosition = new Vector2(originalPos.x, 250);
+    // Mouse down on card -> drag card
+    public void OnPointerDown(PointerEventData eventData) {
+        Player.Instance.SetTurnAction(Player.TurnAction.Cards);
+        Player.Instance.SetSelectedCard(cardSO);
+        PlayCardUI.Instance.Show();
     }
 
-    public void OnPointerExit(PointerEventData eventData) {
-        rectTransform.anchoredPosition = originalPos;
+    // Mouse exit on card -> release card
+    public void OnPointerUp(PointerEventData eventData) {
+        Player.Instance.SetTurnAction(Player.TurnAction.Nothing);
+        PlayCardUI.Instance.Hide();
+        Destroy(gameObject);
+        cardSO.PlayCard();
+    }
+
+    public void OnDrag(PointerEventData eventData) {
+        Vector2 localPoint;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform.parent as RectTransform, eventData.position, canvas.worldCamera, out localPoint);
+
+        rectTransform.anchoredPosition = localPoint;
     }
 }

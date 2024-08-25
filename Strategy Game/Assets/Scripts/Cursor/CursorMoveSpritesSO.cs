@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-[CreateAssetMenu()]
 public class CursorMoveSpritesSO : ScriptableObject
 {
     public Sprite ArrowImage;

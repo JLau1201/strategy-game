@@ -5,6 +5,11 @@ using UnityEngine;
 public class UnitAbilityManager : MonoBehaviour
 {
 
+    [Header("LayerMasks")]
+    [SerializeField] private LayerMask allyMask;
+    [SerializeField] private LayerMask enemyMask;
+    [SerializeField] private LayerMask tileMask;
+
     private HashSet<GameObject> inAbilityRange = new HashSet<GameObject>();
 
     private GameObject lastTileHovered;
@@ -15,6 +20,7 @@ public class UnitAbilityManager : MonoBehaviour
     private Unit unit;
     private int unitAbilityRange;
     private int unitAbilityRadius;
+    private int unitAbilityMultiplier;
     private float unitAttack;
 
     private void Start() {
@@ -30,6 +36,7 @@ public class UnitAbilityManager : MonoBehaviour
         unit = selectedUnit.GetComponent<Unit>();
         unitAbilityRange = unit.AbilityRange;
         unitAbilityRadius = unit.AbilityRadius;
+        unitAbilityMultiplier = unit.AbilityMultiplier;
         unitAttack = unit.Attack;
 
         lastTileHovered = startTile;
@@ -39,10 +46,20 @@ public class UnitAbilityManager : MonoBehaviour
     }
 
     private void Player_OnUnitAbilityComplete(object sender, System.EventArgs e) {
-
+        ActivateAbility();
 
         ClearAbilityRange();
         Player.Instance.SetTurnAction(Player.TurnAction.Nothing);
+    }
+
+    private void ActivateAbility() {
+        List<GameObject> abilityTargets = CursorInput.Instance.GetAbilityTargets(enemyMask);
+
+        float abilityDamage = unitAttack * unitAbilityMultiplier / 100;
+
+        foreach(GameObject target in abilityTargets) {
+            selectedUnit.GetComponent<Unit>().GetUnitDataSO().abilitySO.Activate(target, abilityDamage);
+        }
     }
 
     private void Player_OnUnitAbilityCancelled(object sender, System.EventArgs e) {
